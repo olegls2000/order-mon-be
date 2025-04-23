@@ -1,10 +1,10 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
-import { UpdateOrderDto } from './dto/update-order.dto';
 import { Order } from './entities/order.entity';
 import { EntityManager, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import humanId from 'human-id';
+import { QueryDto } from './dto/query.dto';
 
 @Injectable()
 export class OrdersService {
@@ -36,19 +36,35 @@ export class OrdersService {
   }
 
   async findAll() {
-    return this.ordersRepository.find()
+    await this.ordersRepository.find()
   }
 
-  async findOne(id: number) {
-    return this.ordersRepository.findOneBy({ id })
+  async findOneById(id: number) {
+    const order = await this.ordersRepository.findOneBy({ id });
+    if (!order) {
+      throw new NotFoundException(`Order with ID ${id} not found`);
+    }
+    return order;
   }
 
-  async update(id: number, updateOrderDto: UpdateOrderDto) {
-    const orderToUpdate = this.ordersRepository.findOneBy({ id })
-    await this.entityManager.save({ ...orderToUpdate, ...updateOrderDto })
+  async findByOrderNumber(orderNumber: string) {
+    await this.ordersRepository.find({
+      where: {
+        orderNumber
+      }
+    })
   }
 
-  async remove(id: number) {
-    await this.ordersRepository.delete({ id })
+  async findByQuery(query: QueryDto) {
+    const countryCode = query.countryCode;
+    const description = query.description;
+    await this.ordersRepository
+      .createQueryBuilder('order')
+      .where('WHERE payment_description LIKE \'%\' || :description || \'%\' AND country = :countryCode',
+        {
+          description,
+          countryCode
+        })
+      .getMany();
   }
 }

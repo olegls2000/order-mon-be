@@ -1,3 +1,6 @@
+import { Currency } from "../entities/currency.enum"
+import { IsEnum } from 'class-validator';
+
 export class CreateOrderDto {
 
     paymentDescription: string
@@ -10,7 +13,8 @@ export class CreateOrderDto {
 
     amount: number
 
-    currency: string
+    @IsEnum(Currency)
+    currency: Currency
 
     paymentDueDate: Date
 

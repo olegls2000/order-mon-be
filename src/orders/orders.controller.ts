@@ -1,7 +1,7 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, NotFoundException } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
-import { UpdateOrderDto } from './dto/update-order.dto';
+import { QueryDto } from './dto/query.dto';
 
 @Controller('orders')
 export class OrdersController {
@@ -14,21 +14,24 @@ export class OrdersController {
 
   @Get()
   async findAll() {
+
     return this.ordersService.findAll();
+  } 
+  
+  @Get()
+  async findByOrderNumber(@Query('orderNumber') orderNumber: string) {
+
+    return this.ordersService.findByOrderNumber(orderNumber)
+  }
+
+  @Get()
+  async findByQueryParams(@Query() query: QueryDto) {
+    
+    return this.ordersService.findByQuery;
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return this.ordersService.findOne(+id);
-  }
-
-  @Patch(':id')
-  async  update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
-    return this.ordersService.update(+id, updateOrderDto);
-  }
-
-  @Delete(':id')
-  async remove(@Param('id') id: string) {
-    return this.ordersService.remove(+id);
+  async findOneById(@Param('id') id: string) {
+    return this.ordersService.findOneById(+id);
   }
 }

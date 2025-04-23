@@ -1,4 +1,5 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Currency } from "./currency.enum";
 
 @Entity()
 export class Order {
@@ -21,8 +22,11 @@ export class Order {
     @Column()
     amount: number
 
-    @Column()
-    currency: string
+    @Column({
+        type: 'enum',
+        enum: Currency
+      })
+      currency: Currency;
 
     @Column()
     paymentDueDate: Date
